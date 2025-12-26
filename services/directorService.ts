@@ -13,17 +13,17 @@ const gasFetch = async (path: string, method: 'GET' | 'POST' = 'GET', body?: any
             const queryParams = new URLSearchParams({ path, ...params });
             url = `${API_URL}?${queryParams.toString()}`;
         }
-        
+
         const options: RequestInit = {
             method,
             redirect: 'follow',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         };
-        
+
         if (method === 'POST') {
             options.body = JSON.stringify({ ...body, path });
         }
-        
+
         const response = await fetch(url, options);
         const json = await response.json();
         if (json.status === 'error') throw new Error(json.message);
@@ -37,7 +37,7 @@ const gasFetch = async (path: string, method: 'GET' | 'POST' = 'GET', body?: any
 
 export const getDirectors = async (): Promise<Director[]> => {
     const res = await gasFetch('directors');
-    return (res.data || []).map((d: any) => ({
+    const rawDirectors = (res.data || []).map((d: any) => ({
         id: String(d['ID'] || d['id'] || ''),
         name: d['Full Name'] || d['name'] || '',
         email: d['Email'] || d['email'] || '',
@@ -57,6 +57,17 @@ export const getDirectors = async (): Promise<Director[]> => {
         internationalBoards: String(d['Any International Companies You Are On Board'] || d['internationalboards'] || '').split(',').map((s: string) => s.trim()).filter(Boolean),
         litigationDetails: d['Any Litigation or Board Governance Enquiries'] || d['litigationdetails'],
     }));
+
+    // Post-process to ensure unique IDs (handling potential duplicates from source)
+    const seenIds = new Set<string>();
+    return rawDirectors.map((director: Director, index: number) => {
+        let uniqueId = director.id;
+        if (seenIds.has(uniqueId)) {
+            uniqueId = `${uniqueId}_${index}`;
+        }
+        seenIds.add(uniqueId);
+        return { ...director, id: uniqueId };
+    });
 };
 
 export const getDirectorByEmail = async (email: string) => {
