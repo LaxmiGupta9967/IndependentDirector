@@ -4,7 +4,7 @@ import { Director, Job, JobApplication } from '../types';
 /**
  * Unified API URL from your latest Google Apps Script deployment.
  */
-const API_URL = 'https://script.google.com/macros/s/AKfycbxvHlqXfQ29fj_0Bq_wUioCirMQFkXpLGHYWIIrnHSKog00j1s0tQTCkNxHIkZJkj8PXA/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwHz8aOOsqNyE-hMNwgBizDGhnwAUQ_1UtHmX8hLoQZzFX824tCzZ2mpS1gaeaJH6Xa4Q/exec';
 
 const gasFetch = async (path: string, method: 'GET' | 'POST' = 'GET', body?: any, params: Record<string, string> = {}) => {
     try {

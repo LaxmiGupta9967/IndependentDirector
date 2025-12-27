@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 
 // Updated to match the current API_URL in directorService.ts
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvHlqXfQ29fj_0Bq_wUioCirMQFkXpLGHYWIIrnHSKog00j1s0tQTCkNxHIkZJkj8PXA/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwHz8aOOsqNyE-hMNwgBizDGhnwAUQ_1UtHmX8hLoQZzFX824tCzZ2mpS1gaeaJH6Xa4Q/exec';
 
 const ContactSection: React.FC = () => {
     const mapEmbedUrl = "https://maps.google.com/maps?q=Aviyana%20House,%20609-Parth%20Solitaire%20Commercial%20Complex,%20Plot%20No-2,%20Sector-9E,%20Kalamboli,%20Roadpali,%20Navi%20Mumbai-410218&t=&z=15&ie=UTF8&iwloc=&output=embed";
