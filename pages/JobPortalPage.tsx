@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { getJobs } from '../services/directorService';
 import { Job } from '../types';
@@ -33,6 +34,24 @@ const JobPortalPage: React.FC<Props> = ({ onSelectJob, onPostJob }) => {
         </div>
     );
 
+    const formatDate = (dateStr: string) => {
+        if (!dateStr) return 'N/A';
+        try {
+            const date = new Date(dateStr);
+            // Including time as requested by user
+            return date.toLocaleString('en-IN', { 
+                day: 'numeric', 
+                month: 'short', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        } catch (e) {
+            return dateStr;
+        }
+    };
+
     return (
         <div className="container mx-auto px-6 py-12 max-w-screen-2xl">
             <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
@@ -59,9 +78,14 @@ const JobPortalPage: React.FC<Props> = ({ onSelectJob, onPostJob }) => {
                             className="glass-card rounded-2xl p-7 flex flex-col hover:transform hover:-translate-y-2 transition-all duration-300 border border-white/10 relative overflow-hidden group shadow-2xl"
                         >
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500 to-blue-500 opacity-90"></div>
-                            <div className="absolute top-6 left-6 w-8 h-1 bg-teal-500/40 rounded-full group-hover:bg-teal-500 transition-colors"></div>
-
-                            <div className="flex justify-end items-start mb-4">
+                            
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-teal-500/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {formatDate(job.createdAt)}
+                                </div>
                                 <span className="text-[10px] text-[#C4733A] font-bold flex items-center gap-1.5 uppercase tracking-widest bg-[#C4733A]/10 px-3 py-1.5 rounded-lg border border-[#C4733A]/30">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

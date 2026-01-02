@@ -42,6 +42,24 @@ const JobDetailsPage: React.FC<Props> = ({ job, onBack, onLoginRedirect }) => {
         message: ''
     });
 
+    const formatDate = (dateStr: string) => {
+        if (!dateStr) return 'N/A';
+        try {
+            const date = new Date(dateStr);
+            // Including time as requested by user
+            return date.toLocaleString('en-IN', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        } catch (e) {
+            return dateStr;
+        }
+    };
+
     const handlePayment = async () => {
         if (!user) {
             alert("Please login first to proceed with the application.");
@@ -56,10 +74,7 @@ const JobDetailsPage: React.FC<Props> = ({ job, onBack, onLoginRedirect }) => {
 
         setIsSubmitting(true);
         try {
-            // Force charge to be exactly 99
             const feeToCharge = 99;
-            console.log("Creating Razorpay Order for ₹", feeToCharge);
-            
             const orderResult = await createRazorpayOrder(feeToCharge); 
             
             if (orderResult.status !== 'success') {
@@ -149,7 +164,7 @@ const JobDetailsPage: React.FC<Props> = ({ job, onBack, onLoginRedirect }) => {
                 linkedinUrl: formData.linkedinUrl,
                 summary: formData.summary,
                 message: formData.message,
-                amount: 99, // Forced for consistency
+                amount: 99,
                 paymentId: paymentData?.razorpay_payment_id || 'PRO_V18_FINAL'
             });
             setIsSuccess(true);
@@ -169,9 +184,17 @@ const JobDetailsPage: React.FC<Props> = ({ job, onBack, onLoginRedirect }) => {
             <div className="glass-card rounded-2xl p-6 md:p-8 border-t-4 border-blue-500 overflow-hidden relative shadow-2xl">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div className="w-full md:w-auto">
-                        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-[10px] md:text-xs font-bold rounded-full uppercase mb-2 inline-block">
-                            {job.roleType} Position
-                        </span>
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-[10px] md:text-xs font-bold rounded-full uppercase">
+                                {job.roleType} Position
+                            </span>
+                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-1 bg-white/5 px-2 py-1 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Posted {formatDate(job.createdAt)}
+                            </span>
+                        </div>
                         <h1 className="text-2xl md:text-3xl font-bold text-white break-words leading-tight">{job.title}</h1>
                         <p className="text-teal-400 font-semibold text-sm md:text-base">{job.company} • {job.industry}</p>
                     </div>

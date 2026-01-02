@@ -94,7 +94,7 @@ export const getJobs = async (): Promise<Job[]> => {
         remuneration: j.remuneration,
         applicationFee: 99, // STALEMATE: FORCED to 99 to fix user's dashboard data inconsistency
         status: 'Open',
-        createdAt: j.date,
+        createdAt: j.posted || j.date || '',
         posterEmail: j.posteremail
     }));
 };
