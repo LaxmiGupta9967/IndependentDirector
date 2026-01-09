@@ -1,10 +1,10 @@
 
-import { Director, Job, JobApplication } from '../types';
+import { Director, Job, JobApplication, CertificationApplication } from '../types';
 
 /**
  * Unified API URL from your latest Google Apps Script deployment.
  */
-const API_URL = 'https://script.google.com/macros/s/AKfycbwHz8aOOsqNyE-hMNwgBizDGhnwAUQ_1UtHmX8hLoQZzFX824tCzZ2mpS1gaeaJH6Xa4Q/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxiLGyJUrEX6r0HIa_ed4C1lVGw3iWs02W1HmS728d-89FF6SrM_fQaT_ZeFfC7RMQAXQ/exec';
 
 const gasFetch = async (path: string, method: 'GET' | 'POST' = 'GET', body?: any, params: Record<string, string> = {}) => {
     try {
@@ -13,17 +13,17 @@ const gasFetch = async (path: string, method: 'GET' | 'POST' = 'GET', body?: any
             const queryParams = new URLSearchParams({ path, ...params });
             url = `${API_URL}?${queryParams.toString()}`;
         }
-
+        
         const options: RequestInit = {
             method,
             redirect: 'follow',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         };
-
+        
         if (method === 'POST') {
             options.body = JSON.stringify({ ...body, path });
         }
-
+        
         const response = await fetch(url, options);
         const json = await response.json();
         if (json.status === 'error') throw new Error(json.message);
@@ -37,7 +37,7 @@ const gasFetch = async (path: string, method: 'GET' | 'POST' = 'GET', body?: any
 
 export const getDirectors = async (): Promise<Director[]> => {
     const res = await gasFetch('directors');
-    const rawDirectors = (res.data || []).map((d: any) => ({
+    return (res.data || []).map((d: any) => ({
         id: String(d['ID'] || d['id'] || ''),
         name: d['Full Name'] || d['name'] || '',
         email: d['Email'] || d['email'] || '',
@@ -57,17 +57,6 @@ export const getDirectors = async (): Promise<Director[]> => {
         internationalBoards: String(d['Any International Companies You Are On Board'] || d['internationalboards'] || '').split(',').map((s: string) => s.trim()).filter(Boolean),
         litigationDetails: d['Any Litigation or Board Governance Enquiries'] || d['litigationdetails'],
     }));
-
-    // Post-process to ensure unique IDs (handling potential duplicates from source)
-    const seenIds = new Set<string>();
-    return rawDirectors.map((director: Director, index: number) => {
-        let uniqueId = director.id;
-        if (seenIds.has(uniqueId)) {
-            uniqueId = `${uniqueId}_${index}`;
-        }
-        seenIds.add(uniqueId);
-        return { ...director, id: uniqueId };
-    });
 };
 
 export const getDirectorByEmail = async (email: string) => {
@@ -77,6 +66,10 @@ export const getDirectorByEmail = async (email: string) => {
 
 export const registerDirector = async (data: any) => gasFetch('register_director', 'POST', data);
 export const deleteDirector = async (email: string) => gasFetch('delete_director', 'POST', { email });
+
+export const submitCertificationApplication = async (data: CertificationApplication) => {
+    return gasFetch('submit_certification', 'POST', data);
+};
 
 export const getJobs = async (): Promise<Job[]> => {
     const res = await gasFetch('jobs');
@@ -94,7 +87,7 @@ export const getJobs = async (): Promise<Job[]> => {
         remuneration: j.remuneration,
         applicationFee: 99, // STALEMATE: FORCED to 99 to fix user's dashboard data inconsistency
         status: 'Open',
-        createdAt: j.posted || j.date || '',
+        createdAt: j.posted || j.date || '', // Fixed: Use 'posted' to match sheet header
         posterEmail: j.posteremail
     }));
 };

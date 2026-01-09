@@ -16,10 +16,12 @@ import LegalPage from './pages/LegalPage';
 import JobPortalPage from './pages/JobPortalPage';
 import JobDetailsPage from './pages/JobDetailsPage';
 import PostJobPage from './pages/PostJobPage';
+import BoardroomProgramPage from './pages/BoardroomProgramPage';
+import CertificationApplicationPage from './pages/CertificationApplicationPage';
 import { useAuth } from './context/AuthContext';
 import Chatbot from './components/Chatbot';
 
-type View = 'home' | 'directory' | 'detail' | 'login' | 'register' | 'profile' | 'legal' | 'job-portal' | 'job-detail' | 'post-job';
+type View = 'home' | 'directory' | 'detail' | 'login' | 'register' | 'profile' | 'legal' | 'job-portal' | 'job-detail' | 'post-job' | 'program' | 'apply-cert';
 type LegalSection = 'privacy' | 'terms' | 'disclaimer';
 
 const App: React.FC = () => {
@@ -122,13 +124,18 @@ const App: React.FC = () => {
     };
 
     const renderView = () => {
-        if(dataLoading && !['home', 'register', 'login', 'profile', 'legal', 'job-portal', 'job-detail', 'post-job'].includes(view)) {
+        if(dataLoading && !['home', 'register', 'login', 'profile', 'legal', 'job-portal', 'job-detail', 'post-job', 'program', 'apply-cert'].includes(view)) {
             return <div className="flex justify-center items-center flex-grow"><Spinner /></div>
         }
 
         switch (view) {
             case 'home':
-                return <HomePage onSearch={handleSearch} onViewDirectory={navigateToDirectory} />;
+                return <HomePage 
+                    onSearch={handleSearch} 
+                    onViewDirectory={navigateToDirectory} 
+                    onProgramClick={() => setView('program')}
+                    onApplyClick={() => setView('apply-cert')}
+                />;
             case 'directory':
                 return <DirectoryPage directors={filteredDirectors} onSelectDirector={handleSelectDirector} onSearch={handleSearch}/>;
             case 'detail':
@@ -139,6 +146,10 @@ const App: React.FC = () => {
                 return <PostJobPage onCancel={() => setView('job-portal')} onSuccess={() => setView('job-portal')} />;
             case 'job-detail':
                 return selectedJob ? <JobDetailsPage job={selectedJob} onBack={() => setView('job-portal')} onLoginRedirect={() => setView('login')} /> : null;
+            case 'program':
+                return <BoardroomProgramPage onApplyClick={() => setView('apply-cert')} onBack={navigateHome} />;
+            case 'apply-cert':
+                return <CertificationApplicationPage onBack={() => setView('program')} onSuccess={() => setView('home')} onLoginRedirect={() => setView('login')} />;
             case 'login':
                 return <LoginPage />;
             case 'profile':
@@ -155,7 +166,12 @@ const App: React.FC = () => {
             case 'legal':
                 return <LegalPage type={legalSection} onBack={navigateHome} />;
             default:
-                return <HomePage onSearch={handleSearch} onViewDirectory={navigateToDirectory} />;
+                return <HomePage 
+                    onSearch={handleSearch} 
+                    onViewDirectory={navigateToDirectory}
+                    onProgramClick={() => setView('program')}
+                    onApplyClick={() => setView('apply-cert')}
+                />;
         }
     };
 
@@ -168,6 +184,7 @@ const App: React.FC = () => {
                 onHomeClick={navigateHome} 
                 onDirectoryClick={navigateToDirectory}
                 onJobsClick={() => setView('job-portal')}
+                onProgramClick={() => setView('program')}
                 onAboutClick={() => handleScrollToSection('about')}
                 onContactClick={() => handleScrollToSection('contact')}
                 onLoginClick={() => setView('login')}

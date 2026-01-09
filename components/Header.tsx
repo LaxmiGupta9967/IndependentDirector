@@ -6,6 +6,7 @@ interface HeaderProps {
     onHomeClick: () => void;
     onDirectoryClick: () => void;
     onJobsClick: () => void;
+    onProgramClick: () => void;
     onAboutClick: () => void;
     onContactClick: () => void;
     onLoginClick: () => void;
@@ -18,6 +19,7 @@ const Header: React.FC<HeaderProps> = ({
     onHomeClick, 
     onDirectoryClick,
     onJobsClick,
+    onProgramClick,
     onAboutClick, 
     onContactClick,
     onLoginClick,
@@ -56,6 +58,9 @@ const Header: React.FC<HeaderProps> = ({
                     <button onClick={onDirectoryClick} className={navButtonClasses}>Directory</button>
                     <button onClick={onJobsClick} className="font-semibold text-xs lg:text-sm text-white bg-teal-600 hover:bg-teal-500 transition-colors duration-300 px-3 lg:px-4 py-1.5 rounded-md shadow flex items-center gap-2 whitespace-nowrap">
                         💼 Jobs
+                    </button>
+                    <button onClick={onProgramClick} className="font-semibold text-xs lg:text-sm text-white bg-indigo-600 hover:bg-indigo-500 transition-colors duration-300 px-3 lg:px-4 py-1.5 rounded-md shadow flex items-center gap-2 whitespace-nowrap">
+                        🎓 Board Certification Program
                     </button>
                     <button onClick={onAboutClick} className={navButtonClasses}>About</button>
                     <button onClick={onContactClick} className={navButtonClasses}>Contact</button>
@@ -104,6 +109,7 @@ const Header: React.FC<HeaderProps> = ({
                         <button onClick={() => handleLinkClick(onHomeClick)} className={mobileNavButtonClasses}>Home</button>
                         <button onClick={() => handleLinkClick(onDirectoryClick)} className={mobileNavButtonClasses}>Directory</button>
                         <button onClick={() => handleLinkClick(onJobsClick)} className="w-full text-center py-3 font-semibold text-white bg-teal-700 rounded-md shadow text-lg">Jobs Portal</button>
+                        <button onClick={() => handleLinkClick(onProgramClick)} className="w-full text-center py-3 font-semibold text-white bg-indigo-700 rounded-md shadow text-lg">Board Certification Program</button>
                         <button onClick={() => handleLinkClick(onAboutClick)} className={mobileNavButtonClasses}>About Us</button>
                         <button onClick={() => handleLinkClick(onContactClick)} className={mobileNavButtonClasses}>Contact</button>
                         {!user ? (

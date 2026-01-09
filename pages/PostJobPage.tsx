@@ -95,7 +95,7 @@ const PostJobPage: React.FC<Props> = ({ onCancel, onSuccess }) => {
                             <select name="type" value={formData.type} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-lg text-white bg-[#0A192F]">
                                 <option value="Independent">Independent</option>
                                 <option value="Advisory">Advisory</option>
-                                <option value="Nominee">Nominee</option>
+                                <option value="Mentor">Mentor</option>
                             </select>
                         </div>
                         <div>

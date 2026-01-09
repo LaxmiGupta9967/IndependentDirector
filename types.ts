@@ -25,7 +25,7 @@ export interface Job {
     title: string;
     company: string;
     industry: string;
-    roleType: 'Independent' | 'Advisory' | 'Nominee';
+    roleType: 'Independent' | 'Advisory' | 'Mentor';
     experienceRequired: string;
     location: string;
     description: string;
@@ -36,6 +36,27 @@ export interface Job {
     status: 'Open' | 'Closed';
     createdAt: string;
     posterEmail?: string;
+}
+
+export interface CertificationApplication {
+    fullName: string;
+    email: string;
+    mobile: string;
+    cityCountry: string;
+    yearsOfExperience: string;
+    designation: string;
+    industryExpertise: string;
+    functionalExpertise: string;
+    priorBoardExperience: string;
+    interestedRole: string;
+    areasOfInterest: string;
+    din: string;
+    pan: string;
+    mcaRegistered: string;
+    willingToTest: string;
+    cvUrl: string;
+    interestStatement: string;
+    paymentId?: string; // Track the transaction
 }
 
 export interface JobApplication {
