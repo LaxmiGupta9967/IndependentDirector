@@ -36,35 +36,45 @@ const BoardroomProgramPage: React.FC<Props> = ({ onApplyClick, onBack }) => {
 
     return (
         <div className="w-full flex flex-col items-center">
-            {/* Hero Section */}
-            <div className="w-full min-h-[70vh] flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-blue-900/20 to-transparent -z-10"></div>
-                
-                <button 
-                    onClick={onBack}
-                    className="absolute top-8 left-6 md:left-12 text-teal-400 hover:text-teal-300 transition-colors flex items-center gap-2 group z-20"
-                >
-                    <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span> Back to Home
-                </button>
+            {/* Hero Section - Updated per user request */}
+            <div className="w-full min-h-[60vh] flex flex-col items-center px-6 py-12 relative overflow-hidden bg-[#0A192F]">
+                <div className="w-full max-w-6xl relative">
+                    <button 
+                        onClick={onBack}
+                        className="text-teal-400 hover:text-teal-300 transition-colors flex items-center gap-2 group mb-8"
+                    >
+                        <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span> Back to Home
+                    </button>
+                </div>
 
                 <MotionDiv 
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
-                    className="max-w-4xl text-center z-10"
+                    className="max-w-5xl w-full text-center z-10"
                 >
-                    <div className="inline-block px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 mb-6">
-                        <span className="text-teal-400 font-bold text-sm tracking-widest uppercase">Elite Certification</span>
+                    <div className="inline-block px-6 py-2 rounded-full border border-teal-500/30 mb-8">
+                        <span className="text-teal-400 font-bold text-xs tracking-widest uppercase">ELITE CERTIFICATION</span>
                     </div>
-                    <h1 className="text-5xl md:text-8xl font-bold gradient-text mb-8 leading-tight">
-                        Boardroom <br/>Program™
-                    </h1>
-                    <p className="text-xl md:text-2xl text-gray-300 leading-relaxed mb-10">
-                        Master the art of corporate governance and secure your seat at the table with our comprehensive certification program.
+
+                    {/* Updated Title: Box removed, text size reduced, headline clarified */}
+                    <div className="mb-6">
+                        <h1 className="text-5xl md:text-7xl font-black text-white leading-tight tracking-tight mb-4">
+                            Boardroom <span className="text-teal-400">Certification</span> Program
+                        </h1>
+                        <h2 className="text-2xl md:text-3xl font-bold text-blue-400 mb-6">
+                            Become a Board-Ready Independent Director
+                        </h2>
+                    </div>
+
+                    <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-10 max-w-4xl mx-auto font-medium">
+                        Master the art of corporate governance with our comprehensive certification program, 
+                        strictly aligned with the <span className="text-white font-bold">Companies Act, MCA & IICA Framework</span>.
                     </p>
+                    
                     <button 
                         onClick={onApplyClick}
-                        className="glow-button px-12 py-5 rounded-2xl font-bold text-white text-xl shadow-2xl hover:scale-105 transition-all"
+                        className="px-10 py-4 bg-gradient-to-r from-blue-600 to-teal-500 text-white rounded-xl font-bold text-lg shadow-xl hover:scale-105 transition-all active:scale-95"
                     >
                         Apply for Certification Now
                     </button>

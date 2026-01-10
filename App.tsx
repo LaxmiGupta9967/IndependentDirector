@@ -123,6 +123,15 @@ const App: React.FC = () => {
         setView('legal');
     };
 
+    const handleRegisterDirectorClick = () => {
+        if (user) {
+            setDirectorToEdit(null);
+            setView('register');
+        } else {
+            setView('login');
+        }
+    };
+
     const renderView = () => {
         if(dataLoading && !['home', 'register', 'login', 'profile', 'legal', 'job-portal', 'job-detail', 'post-job', 'program', 'apply-cert'].includes(view)) {
             return <div className="flex justify-center items-center flex-grow"><Spinner /></div>
@@ -135,6 +144,8 @@ const App: React.FC = () => {
                     onViewDirectory={navigateToDirectory} 
                     onProgramClick={() => setView('program')}
                     onApplyClick={() => setView('apply-cert')}
+                    onRegisterDirectorClick={handleRegisterDirectorClick}
+                    onPostJobClick={() => setView('post-job')}
                 />;
             case 'directory':
                 return <DirectoryPage directors={filteredDirectors} onSelectDirector={handleSelectDirector} onSearch={handleSearch}/>;
@@ -171,6 +182,8 @@ const App: React.FC = () => {
                     onViewDirectory={navigateToDirectory}
                     onProgramClick={() => setView('program')}
                     onApplyClick={() => setView('apply-cert')}
+                    onRegisterDirectorClick={handleRegisterDirectorClick}
+                    onPostJobClick={() => setView('post-job')}
                 />;
         }
     };

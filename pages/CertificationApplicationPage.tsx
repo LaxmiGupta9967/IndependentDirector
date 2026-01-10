@@ -172,7 +172,7 @@ const CertificationApplicationPage: React.FC<Props> = ({ onBack, onSuccess, onLo
                 
                 <div className="mb-12 text-center">
                     <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">🎙️ Boardroom Certification</h1>
-                    <p className="text-gray-400 text-lg">Complete your elite profile. A verification fee of <b className="text-white">₹99</b> applies to maintain the quality of our boardroom directory.</p>
+                    <p className="text-gray-400 text-lg">Complete your profile - for boardroom certification program</p>
                 </div>
 
                 <form onSubmit={handleFormSubmit} className="space-y-12">

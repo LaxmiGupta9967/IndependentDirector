@@ -4,6 +4,7 @@ import SearchBar from '../components/SearchBar';
 import AboutSection from '../components/AboutSection';
 import ContactSection from '../components/ContactSection';
 import WhyChooseUsSection from '../components/WhyChooseUsSection';
+import InformationTicker from '../components/InformationTicker';
 
 
 interface HomePageProps {
@@ -11,6 +12,8 @@ interface HomePageProps {
     onViewDirectory: () => void;
     onProgramClick: () => void;
     onApplyClick: () => void;
+    onRegisterDirectorClick: () => void;
+    onPostJobClick: () => void;
 }
 
 const featuredSectors = ['Technology', 'Healthcare', 'Transport', 'Marketing', 'Finance', 'Retail'];
@@ -21,67 +24,98 @@ const SectionDivider: React.FC = () => (
     </div>
 );
 
-const HomePage: React.FC<HomePageProps> = ({ onSearch, onViewDirectory, onProgramClick, onApplyClick }) => {
+const HomePage: React.FC<HomePageProps> = ({ onSearch, onViewDirectory, onProgramClick, onApplyClick, onRegisterDirectorClick, onPostJobClick }) => {
+    
+    const handleScrollDown = () => {
+        window.scrollTo({
+            top: window.innerHeight * 0.8,
+            behavior: 'smooth'
+        });
+    };
+
     return (
         <div className="flex flex-col w-full">
+            {/* Information Ticker */}
+            <InformationTicker />
+
             {/* Hero Section - Perfectly Centered */}
-            <div className="relative min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center text-center px-4 py-12">
-                <div className="glass-card p-8 md:p-12 rounded-2xl max-w-4xl w-full outer-glow relative overflow-hidden transition-all duration-500">
+            <div className="relative min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center text-center px-4 py-8">
+                <div className="glass-card p-8 md:p-12 rounded-[2rem] max-w-6xl w-full outer-glow relative overflow-hidden transition-all duration-500">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-teal-400 to-blue-500"></div>
                     
-                    {/* Branding Strip */}
-                    <div className="mb-8 flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-700">
-                        <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-teal-500/10 border border-teal-500/20 mb-3 group hover:bg-teal-500/20 transition-all cursor-default">
-                            <span className="text-base md:text-lg font-bold text-white tracking-tight flex items-center gap-2">
-                                <span className="text-xl group-hover:scale-125 transition-transform">🎙️</span> 
-                                The Boardroom Podcast™
-                            </span>
-                        </div>
-                        <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.4em] font-extrabold text-teal-400 drop-shadow-[0_0_8px_rgba(20,184,166,0.4)]">
-                            Where Experienced Leaders Step Into the Boardroom
-                        </p>
-                    </div>
-
-                    <h1 className="text-5xl md:text-7xl font-bold text-white mb-4">
+                    <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 mt-4">
                         <span className="text-blue-400">Independent</span> <span className="text-teal-400">Director</span>
                     </h1>
                     
-                    <div className="text-lg md:text-xl text-white mb-8 space-y-1">
-                        <p className="font-bold text-teal-300">Learn. Certify. Lead.</p>
-                        <p>Get Board-Ready as a Certified Independent Director</p>
-                        <p className="text-sm md:text-base text-gray-400">under Companies Act, MCA & IICA Framework.</p>
+                    <div className="text-lg md:text-xl text-white mb-10 space-y-1">
+                        <p className="font-bold text-teal-300">Discover. Connect. Grow with Verified Independent Directors.</p>
+                        <p>Your Gateway to Independent Director & Board Opportunities</p>
+                        <p className="text-base md:text-xl text-gray-300 elegant-script italic">Profiles, Board Positions & Certification under Companies Act, MCA & IICA</p>
                     </div>
                     
-                    {/* CTA Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-4 mb-6 justify-center items-center">
+                    {/* CTA Buttons - Responsive Grid Layout */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 justify-center">
+                        {/* Button 1: Individuals */}
+                        <button 
+                            onClick={onRegisterDirectorClick}
+                            className="glow-button flex flex-col items-center justify-center p-6 rounded-2xl transition-all hover:scale-[1.03] active:scale-95 border border-white/10 group h-full"
+                        >
+                            <span className="text-lg md:text-xl font-bold text-white mb-2">Create Your Board Profile</span>
+                            <span className="text-xs md:text-sm text-blue-100/70 font-normal leading-tight group-hover:text-white transition-colors">
+                                Post your profile as an Independent Director, Advisor or Mentor
+                            </span>
+                        </button>
+
+                        {/* Button 2: Companies */}
+                        <button 
+                            onClick={onPostJobClick}
+                            className="glow-button flex flex-col items-center justify-center p-6 rounded-2xl transition-all hover:scale-[1.03] active:scale-95 border border-white/10 bg-gradient-to-r from-teal-600 to-blue-700 group h-full"
+                        >
+                            <span className="text-lg md:text-xl font-bold text-white mb-2">Post a Board Position</span>
+                            <span className="text-xs md:text-sm text-teal-100/70 font-normal leading-tight group-hover:text-white transition-colors">
+                                Hire Independent Directors, Advisors & Mentors
+                            </span>
+                        </button>
+
+                        {/* Button 3: Certification */}
                         <button 
                             onClick={onApplyClick}
-                            className="glow-button w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-white shadow-lg transition-all hover:scale-105 flex items-center justify-center gap-2 text-sm md:text-base"
+                            className="glow-button flex flex-col items-center justify-center p-6 rounded-2xl transition-all hover:scale-[1.03] active:scale-95 border border-white/10 bg-gradient-to-r from-indigo-600 to-blue-600 group h-full md:col-span-2 lg:col-span-1"
                         >
-                            <span>🎓</span> Apply for Board Certification
-                        </button>
-                        <button 
-                            onClick={onProgramClick}
-                            className="w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-white border-2 border-teal-500/50 hover:bg-teal-500/10 transition-all hover:scale-105 flex items-center justify-center gap-2 text-sm md:text-base"
-                        >
-                            <span>📘</span> Explore the Boardroom Program
+                            <span className="text-lg md:text-xl font-bold text-white mb-2">Get Board Certified</span>
+                            <span className="text-xs md:text-sm text-indigo-100/70 font-normal leading-tight group-hover:text-white transition-colors">
+                                Certification from recognised bodies for Board roles
+                            </span>
                         </button>
                     </div>
 
-                    {/* Micro-copy */}
-                    <div className="mb-10 text-xs md:text-sm text-gray-400 font-medium animate-pulse">
-                        <p>Boards Are Looking. Are You Board-Ready?</p>
-                        <p className="text-teal-400 font-bold uppercase tracking-wider mt-1">Get Certified. Get Empanelled. Get Considered.</p>
-                    </div>
-
-                    <div className="flex justify-center">
+                    <div className="flex justify-center max-w-3xl mx-auto">
                         <SearchBar onSearch={onSearch} />
                     </div>
+                </div>
+
+                {/* Scroll Down Arrow */}
+                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+                    <button 
+                        onClick={handleScrollDown}
+                        className="text-white/40 hover:text-teal-400 transition-all duration-300 animate-bounce group p-2"
+                        aria-label="Scroll down to content"
+                    >
+                        <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        </svg>
+                    </button>
                 </div>
             </div>
 
             {/* Content Sections */}
-            <div className="w-full px-4 pb-16">
+            <div id="sectors" className="w-full px-4 pb-16 pt-8">
                 <div className="container mx-auto max-w-screen-2xl">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl font-bold gradient-text mb-4">Explore Featured Sectors</h2>

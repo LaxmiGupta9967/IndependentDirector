@@ -49,3 +49,30 @@
 .outer-glow {
     box-shadow: 0 0 15px rgba(37, 99, 235, 0.2), 0 0 20px rgba(37, 99, 235, 0.1);
 }
+
+/* Elegant Script Class */
+.elegant-script {
+    font-family: 'Dancing Script', cursive;
+}
+
+/* Marquee Animation */
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.animate-marquee {
+    display: flex;
+    min-width: max-content;
+    white-space: nowrap;
+    animation: marquee 40s linear infinite;
+}
+
+.animate-marquee:hover {
+    animation-play-state: paused;
+}
