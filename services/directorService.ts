@@ -4,7 +4,7 @@ import { Director, Job, JobApplication, CertificationApplication } from '../type
 /**
  * Unified API URL from your latest Google Apps Script deployment.
  */
-const API_URL = 'https://script.google.com/macros/s/AKfycbxiLGyJUrEX6r0HIa_ed4C1lVGw3iWs02W1HmS728d-89FF6SrM_fQaT_ZeFfC7RMQAXQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwpfLV_MhtFVJG97hyFmqBRf0Va-T-MznEVs4AjFw-1Ld2ZR6mXs0uhNc2xPJEt552I-A/exec';
 
 const gasFetch = async (path: string, method: 'GET' | 'POST' = 'GET', body?: any, params: Record<string, string> = {}) => {
     try {
@@ -25,12 +25,22 @@ const gasFetch = async (path: string, method: 'GET' | 'POST' = 'GET', body?: any
         }
         
         const response = await fetch(url, options);
+        
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") === -1) {
+            const raw = await response.text();
+            console.error("Critical Backend Error (Non-JSON):", raw);
+            throw new Error("Backend deployment is returning invalid content. Check Script Logs.");
+        }
+
         const json = await response.json();
-        if (json.status === 'error') throw new Error(json.message);
+        
+        if (json.status === 'error') {
+            throw new Error(json.message || `Backend error on: ${path}`);
+        }
         return json;
     } catch (error: any) {
-        // Log the simple path to avoid confusion in logs
-        console.error(`GAS Error (${path}):`, error.message);
+        console.error(`Fetch Failure (${path}):`, error.message);
         throw error;
     }
 };
@@ -71,6 +81,11 @@ export const submitCertificationApplication = async (data: CertificationApplicat
     return gasFetch('submit_certification', 'POST', data);
 };
 
+export const getMyCertifications = async (email: string): Promise<any[]> => {
+    const res = await gasFetch('my_certifications', 'GET', null, { email: email.trim() });
+    return res.data || [];
+};
+
 export const getJobs = async (): Promise<Job[]> => {
     const res = await gasFetch('jobs');
     return (res.data || []).map((j: any) => ({
@@ -85,9 +100,9 @@ export const getJobs = async (): Promise<Job[]> => {
         responsibilities: j.responsibilities,
         expectations: j.expectations,
         remuneration: j.remuneration,
-        applicationFee: 99, // STALEMATE: FORCED to 99 to fix user's dashboard data inconsistency
+        applicationFee: 99, 
         status: 'Open',
-        createdAt: j.posted || j.date || '', // Fixed: Use 'posted' to match sheet header
+        createdAt: j.posted || j.date || '',
         posterEmail: j.posteremail
     }));
 };
@@ -121,7 +136,7 @@ export const getMyApplications = async (email: string): Promise<JobApplication[]
         summary: a.summary,
         message: a.message,
         paymentStatus: a.paymentStatus,
-        amount: 99, // Forced 99 override for all existing records
+        amount: 99,
         paymentId: a.paymentId,
         paymentMethod: a.paymentMethod,
         transactionStatus: a.transactionStatus,
@@ -140,6 +155,8 @@ export const createRazorpayOrder = async (amount: number): Promise<{ status: str
 };
 
 export const verifyRazorpayPayment = async (data: any) => gasFetch('razorpay/verify_payment', 'POST', data);
+
+export const submitContactForm = async (data: any) => gasFetch('contact', 'POST', data);
 
 export const signupUser = async (email: string, p: string, n: string) => gasFetch('auth/signup', 'POST', { email, password: p, name: n });
 export const loginUser = async (email: string, p: string) => gasFetch('auth/login', 'POST', { email, password: p });

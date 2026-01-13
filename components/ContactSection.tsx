@@ -1,8 +1,6 @@
 
 import React, { useState } from 'react';
-
-// Updated to match the current API_URL in directorService.ts
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwHz8aOOsqNyE-hMNwgBizDGhnwAUQ_1UtHmX8hLoQZzFX824tCzZ2mpS1gaeaJH6Xa4Q/exec';
+import { submitContactForm } from '../services/directorService';
 
 const ContactSection: React.FC = () => {
     const mapEmbedUrl = "https://maps.google.com/maps?q=Aviyana%20House,%20609-Parth%20Solitaire%20Commercial%20Complex,%20Plot%20No-2,%20Sector-9E,%20Kalamboli,%20Roadpali,%20Navi%20Mumbai-410218&t=&z=15&ie=UTF8&iwloc=&output=embed";
@@ -26,25 +24,13 @@ const ContactSection: React.FC = () => {
         setSubmitStatus('idle');
 
         try {
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                redirect: 'follow', 
-                // Adding 'path' so backend routes it to handleContact in V18
-                body: JSON.stringify({ ...formData, path: 'contact' }),
-                headers: {
-                    "Content-Type": "text/plain;charset=utf-8",
-                },
-            });
-            
-            const result = await response.json();
-
+            const result = await submitContactForm(formData);
             if (result.status === 'success') {
                  setSubmitStatus('success');
                  setFormData({ fullName: '', email: '', subject: '', message: '' }); 
             } else {
                  throw new Error(result.message || 'Submission failed');
             }
-        
         } catch (error) {
             console.error('Error submitting form:', error);
             setSubmitStatus('error');
@@ -91,12 +77,12 @@ const ContactSection: React.FC = () => {
                                 </button>
                             </form>
                             {submitStatus === 'success' && (
-                                <div className="mt-4 p-4 text-center text-green-200 bg-green-900 rounded-lg">
+                                <div className="mt-4 p-4 text-center text-green-200 bg-green-900 rounded-lg font-bold">
                                     Thank you! Your message has been sent successfully.
                                 </div>
                             )}
                             {submitStatus === 'error' && (
-                                <div className="mt-4 p-4 text-center text-red-200 bg-red-900 rounded-lg">
+                                <div className="mt-4 p-4 text-center text-red-200 bg-red-900 rounded-lg font-bold">
                                     Something went wrong. Please try again or email us directly.
                                 </div>
                             )}

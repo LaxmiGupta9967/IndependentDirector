@@ -63,18 +63,20 @@ const CertificationApplicationPage: React.FC<Props> = ({ onBack, onSuccess, onLo
         setLoading(true);
 
         try {
-            // 1. Create Razorpay Order (Backend returns amount in paise and the key)
             const fee = 99;
             const orderResult = await createRazorpayOrder(fee);
             
-            if (orderResult.status !== 'success') {
-                throw new Error(orderResult.message || "Failed to create payment order.");
+            if (orderResult.status !== 'success' || !orderResult.id) {
+                throw new Error(orderResult.message || "Failed to create payment order. Check backend deployment.");
             }
 
-            // 2. Configure Razorpay Options
+            if (!orderResult.key) {
+                throw new Error("Razorpay API Key (RZP_KEY_ID) is missing in your Google Apps Script properties.");
+            }
+
             const options = {
                 key: orderResult.key,
-                amount: orderResult.amount, // In paise
+                amount: orderResult.amount, 
                 currency: orderResult.currency,
                 name: "Aviyana Independent Director",
                 description: "Boardroom Certification Verification Fee",
@@ -83,7 +85,6 @@ const CertificationApplicationPage: React.FC<Props> = ({ onBack, onSuccess, onLo
                 handler: async (response: any) => {
                     setLoading(true);
                     try {
-                        // 3. Verify Payment Signature on Backend
                         const verification = await verifyRazorpayPayment({
                             razorpay_order_id: response.razorpay_order_id,
                             razorpay_payment_id: response.razorpay_payment_id,
@@ -91,7 +92,7 @@ const CertificationApplicationPage: React.FC<Props> = ({ onBack, onSuccess, onLo
                         });
 
                         if (verification.status === 'success') {
-                            // 4. Submit actual application data only after successful payment
+                            // Perfect alignment with backend handleSubmitCertification(data)
                             await submitCertificationApplication({
                                 ...formData,
                                 paymentId: response.razorpay_payment_id
@@ -100,11 +101,11 @@ const CertificationApplicationPage: React.FC<Props> = ({ onBack, onSuccess, onLo
                             setSuccessMessage(true);
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                         } else {
-                            alert("Payment verification failed. If your money was deducted, please contact support.");
+                            alert("Payment verification failed. Please contact support.");
                         }
-                    } catch (err) {
+                    } catch (err: any) {
                         console.error("Verification error:", err);
-                        alert("There was an error verifying your payment.");
+                        alert(err.message || "There was an error verifying your payment.");
                     } finally {
                         setLoading(false);
                     }
@@ -120,7 +121,6 @@ const CertificationApplicationPage: React.FC<Props> = ({ onBack, onSuccess, onLo
                 }
             };
 
-            // 3. Open Razorpay Checkout
             const rzp = new window.Razorpay(options);
             rzp.on('payment.failed', (resp: any) => {
                 alert("Payment Failed: " + resp.error.description);
@@ -128,6 +128,7 @@ const CertificationApplicationPage: React.FC<Props> = ({ onBack, onSuccess, onLo
             });
             rzp.open();
         } catch (error: any) {
+            console.error("Initiation error:", error);
             alert(error.message || "Could not initiate payment.");
             setLoading(false);
         }
@@ -139,13 +140,13 @@ const CertificationApplicationPage: React.FC<Props> = ({ onBack, onSuccess, onLo
                 <MotionDiv 
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="w-24 h-24 bg-teal-500 rounded-full flex items-center justify-center text-5xl mb-8 shadow-2xl shadow-teal-500/50"
+                    className="w-24 h-24 bg-teal-500 rounded-full flex items-center justify-center text-5xl mb-8 shadow-2xl"
                 >
                     ✓
                 </MotionDiv>
-                <h1 className="text-4xl font-bold text-white mb-4 text-center">Application & Payment Successful</h1>
+                <h1 className="text-4xl font-bold text-white mb-4 text-center">Application Successful</h1>
                 <p className="text-xl text-gray-300 text-center max-w-2xl leading-relaxed">
-                    Thank you, {formData.fullName}. Your certification fee has been processed. Our governance committee will review your application and provide an update within 3-5 working days. An auto-reply has been sent to your email.
+                    Thank you, {formData.fullName}. Your certification fee has been processed. Our governance committee will review your application and provide an update within 3-5 working days.
                 </p>
                 <button 
                     onClick={onSuccess} 
@@ -166,145 +167,124 @@ const CertificationApplicationPage: React.FC<Props> = ({ onBack, onSuccess, onLo
             <MotionDiv 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="glass-card p-8 md:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden relative"
+                className="glass-card p-8 md:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl relative"
             >
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-teal-500 to-indigo-600"></div>
                 
                 <div className="mb-12 text-center">
-                    <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">🎙️ Boardroom Certification</h1>
-                    <p className="text-gray-400 text-lg">Complete your profile - for boardroom certification program</p>
+                    <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">Boardroom Certification</h1>
+                    <p className="text-gray-400 text-lg">Complete your professional profile for board eligibility</p>
                 </div>
 
                 <form onSubmit={handleFormSubmit} className="space-y-12">
-                    {/* Section 1: Personal */}
+                    {/* Section 01 */}
                     <section className="space-y-6">
                         <h3 className="text-xl font-bold text-teal-400 flex items-center gap-3">
                             <span className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-sm border border-teal-500/20">01</span>
-                            Personal & Contact Information
+                            Personal Information
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Full Name (As per PAN) *</label>
-                                <input required name="fullName" value={formData.fullName} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white focus:ring-2 ring-teal-500/50" />
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Full Name *</label>
+                                <input required name="fullName" value={formData.fullName} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white" />
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Email ID *</label>
-                                <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white focus:ring-2 ring-teal-500/50" />
+                                <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white" />
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Mobile Number *</label>
-                                <input required name="mobile" value={formData.mobile} onChange={handleChange} placeholder="+91" className="w-full glass-input px-4 py-3 rounded-xl text-white focus:ring-2 ring-teal-500/50" />
+                                <input required name="mobile" value={formData.mobile} onChange={handleChange} placeholder="+91" className="w-full glass-input px-4 py-3 rounded-xl text-white" />
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">City / Country *</label>
-                                <input required name="cityCountry" value={formData.cityCountry} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white focus:ring-2 ring-teal-500/50" />
+                                <input required name="cityCountry" value={formData.cityCountry} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white" />
                             </div>
                         </div>
                     </section>
 
-                    {/* Section 2: Professional */}
+                    {/* Section 02 */}
                     <section className="space-y-6">
                         <h3 className="text-xl font-bold text-indigo-400 flex items-center gap-3">
                             <span className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-sm border border-indigo-500/20">02</span>
-                            Professional Background
+                            Professional Experience
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Total Years of Experience *</label>
-                                <input required name="yearsOfExperience" value={formData.yearsOfExperience} onChange={handleChange} placeholder="e.g. 20 Years" className="w-full glass-input px-4 py-3 rounded-xl text-white focus:ring-2 ring-indigo-500/50" />
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Total Experience *</label>
+                                <input required name="yearsOfExperience" value={formData.yearsOfExperience} onChange={handleChange} placeholder="e.g. 20 Years" className="w-full glass-input px-4 py-3 rounded-xl text-white" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Current / Last Designation *</label>
-                                <input required name="designation" value={formData.designation} onChange={handleChange} placeholder="e.g. CEO / VP Finance" className="w-full glass-input px-4 py-3 rounded-xl text-white focus:ring-2 ring-indigo-500/50" />
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Current Designation *</label>
+                                <input required name="designation" value={formData.designation} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white" />
                             </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Industry / Sector Expertise *</label>
-                                <input required name="industryExpertise" value={formData.industryExpertise} onChange={handleChange} placeholder="e.g. Banking, Manufacturing, IT" className="w-full glass-input px-4 py-3 rounded-xl text-white focus:ring-2 ring-indigo-500/50" />
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Key Functional Expertise *</label>
-                                <input required name="functionalExpertise" value={formData.functionalExpertise} onChange={handleChange} placeholder="Finance / Legal / HR / Strategy / ESG / Risk" className="w-full glass-input px-4 py-3 rounded-xl text-white focus:ring-2 ring-indigo-500/50" />
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Section 3: Governance */}
-                    <section className="space-y-6">
-                        <h3 className="text-xl font-bold text-teal-400 flex items-center gap-3">
-                            <span className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-sm border border-teal-500/20">03</span>
-                            Board & Governance Readiness
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Prior Board Experience? *</label>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Industry Expertise *</label>
+                                <input required name="industryExpertise" value={formData.industryExpertise} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Functional Expertise *</label>
+                                <input required name="functionalExpertise" value={formData.functionalExpertise} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Prior Board Exp? *</label>
                                 <select name="priorBoardExperience" value={formData.priorBoardExperience} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white bg-[#0A192F]">
-                                    <option value="Yes">Yes</option>
                                     <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Interested Role *</label>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Interested Board Role *</label>
                                 <select name="interestedRole" value={formData.interestedRole} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white bg-[#0A192F]">
                                     <option value="Independent Director">Independent Director</option>
-                                    <option value="Advisor">Advisor</option>
-                                    <option value="Mentor">Mentor</option>
-                                    <option value="Committee Member">Committee Member</option>
+                                    <option value="Advisory Board Member">Advisory Board Member</option>
+                                    <option value="Non-Executive Director">Non-Executive Director</option>
                                 </select>
                             </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Areas of Interest *</label>
-                                <input required name="areasOfInterest" value={formData.areasOfInterest} onChange={handleChange} placeholder="Audit / CSR / ESG / Risk / HR / Compliance / Strategy" className="w-full glass-input px-4 py-3 rounded-xl text-white focus:ring-2 ring-teal-500/50" />
-                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Specific Areas of Interest</label>
+                            <input name="areasOfInterest" value={formData.areasOfInterest} onChange={handleChange} placeholder="e.g. ESG, Audit Committee, Strategy" className="w-full glass-input px-4 py-3 rounded-xl text-white" />
                         </div>
                     </section>
 
-                    {/* Section 4: Statutory */}
+                    {/* Section 03 */}
                     <section className="space-y-6">
-                        <h3 className="text-xl font-bold text-indigo-400 flex items-center gap-3">
-                            <span className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-sm border border-indigo-500/20">04</span>
-                            Statutory & Compliance Details
+                        <h3 className="text-xl font-bold text-blue-400 flex items-center gap-3">
+                            <span className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-sm border border-blue-500/20">03</span>
+                            Compliance & Identity
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">DIN (If available)</label>
-                                <input name="din" value={formData.din} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white focus:ring-2 ring-indigo-500/50" />
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">DIN Number (If any)</label>
+                                <input name="din" value={formData.din} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white" />
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">PAN Number *</label>
-                                <input required name="pan" value={formData.pan} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white focus:ring-2 ring-indigo-500/50" />
+                                <input required name="pan" value={formData.pan} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Registered on MCA ID Databank? *</label>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">MCA Registered? *</label>
                                 <select name="mcaRegistered" value={formData.mcaRegistered} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white bg-[#0A192F]">
-                                    <option value="Yes">Yes</option>
                                     <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Willing to undergo Proficiency Test? *</label>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Willingness to take Test? *</label>
                                 <select name="willingToTest" value={formData.willingToTest} onChange={handleChange} className="w-full glass-input px-4 py-3 rounded-xl text-white bg-[#0A192F]">
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
                                 </select>
                             </div>
                         </div>
-                    </section>
-
-                    {/* Section 5: Documents */}
-                    <section className="space-y-6">
-                        <h3 className="text-xl font-bold text-teal-400 flex items-center gap-3">
-                            <span className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-sm border border-teal-500/20">05</span>
-                            Upload Documents
-                        </h3>
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Updated CV / Profile URL *</label>
-                                <input required type="url" name="cvUrl" value={formData.cvUrl} onChange={handleChange} placeholder="https://drive.google.com/..." className="w-full glass-input px-4 py-3 rounded-xl text-white focus:ring-2 ring-teal-500/50" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Brief Statement of Board Interest (Optional)</label>
-                                <textarea name="interestStatement" value={formData.interestStatement} onChange={handleChange} rows={4} className="w-full glass-input px-4 py-3 rounded-xl text-white focus:ring-2 ring-teal-500/50" placeholder="Tell us why you want to serve on a board..." />
-                            </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">CV / Profile Document Link *</label>
+                            <input required type="url" name="cvUrl" value={formData.cvUrl} onChange={handleChange} placeholder="Google Drive/Cloud link" className="w-full glass-input px-4 py-3 rounded-xl text-white" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Statement of Interest *</label>
+                            <textarea required name="interestStatement" value={formData.interestStatement} onChange={handleChange} rows={4} className="w-full glass-input px-4 py-3 rounded-xl text-white" placeholder="Why are you interested in becoming a certified Independent Director?"></textarea>
                         </div>
                     </section>
 
@@ -316,11 +296,9 @@ const CertificationApplicationPage: React.FC<Props> = ({ onBack, onSuccess, onLo
                         >
                             {loading ? (
                                 <div className="flex items-center justify-center gap-3">
-                                    <Spinner /> Processing Payment...
+                                    <Spinner /> Processing...
                                 </div>
-                            ) : (
-                                'Pay ₹99 & Submit Certification Application'
-                            )}
+                            ) : 'Pay ₹99 & Submit Application'}
                         </button>
                     </div>
                 </form>
